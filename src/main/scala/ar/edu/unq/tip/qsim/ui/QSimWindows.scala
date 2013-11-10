@@ -54,6 +54,7 @@ object SimuladorAppmodel{
 
 @Observable
 class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.instrucciones)) {
+  var never_enabled = false
   var enabled = false
   // var programa = new Programa(instrucciones)
   var sim = Simulador()
@@ -159,13 +160,13 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       
       new Label(FlagsForm).setText("SP")
       val text_sp = new TextBox(FlagsForm)
-      text_sp.bindEnabledToProperty("enabled")
+      text_sp.bindEnabledToProperty("never_enabled")
       text_sp.bindValueToProperty(s"sim.cpu.sp")
       text_sp.setWidth(110).setHeigth(15)
       
       new Label(FlagsForm).setText("IR")
       val text = new TextBox(FlagsForm)
-      text.bindEnabledToProperty("enabled")
+      text.bindEnabledToProperty("never_enabled")
       text.bindValueToProperty(s"sim.cpu.ir")
       text.setWidth(110).setHeigth(15)
     
