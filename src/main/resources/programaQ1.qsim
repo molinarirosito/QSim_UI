@@ -1,0 +1,5 @@
+MOV R1, R0
+ADD R5, 0x0003
+SUB [0x0111], R2
+CALL efod
+efod: MUL R2, 0x0001
