@@ -23,7 +23,7 @@ import ar.edu.unq.tpi.qsim.utils._
 
 class PuertosWindow(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[SimuladorAppmodel](owner, model) {
 
-  var enabled = false
+
   override def createFormPanel(mainPanel: Panel) = {
     this.setTitle("Qsim - Puertos")
     this.setIconImage(getClass().getResource("/icon.png").getPath())
@@ -38,13 +38,10 @@ class PuertosWindow(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog
     
     val editable = new Button(parent)
       .setCaption("Editable")
-      .onClick(new MessageSend(this, "cambiarEdicion"))
+      .onClick(new MessageSend(model, "cambiarEdicion"))
       .setAsDefault
   }
   
-  def cambiarEdicion() {
-    enabled = !enabled
-  }
   
    def crearPanelDePuertos(parent: Panel) {
     var panelForm = new Panel(parent)
@@ -56,8 +53,8 @@ class PuertosWindow(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog
       new Label(puertosPanel ).setText(Util.toHex4(65520 + contador)+":")
       contador = contador +1
       val text = new TextBox(puertosPanel)
-      text.bindEnabled(new ObservableProperty(this, "enabled"))
-      text.bindValueToProperty("value")
+      text.bindEnabled(new ObservableProperty(this.getModelObject(), "enabled"))
+      text.bindValueToProperty("value.hex")
       text.withFilter(new TextFilter() {
         def accept(event: TextInputEvent): Boolean = {
           event.getPotentialTextResult().matches("[A-F0-9]{0,4}")

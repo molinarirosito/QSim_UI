@@ -59,9 +59,8 @@ class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.inst
   var sim = Simulador()
   sim.inicializarSim()
   var celdas = new java.util.ArrayList[Fila16Celdas]()
-  var puertos = new java.util.ArrayList[Fila4Celdas]()
+  
   crearFila16Celdas()
-  crearFila8Celdas()
   sim.cargarProgramaYRegistros(programa, "0000", Map[String, W16]())
 
   def crearFila16Celdas() {
@@ -83,25 +82,7 @@ class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.inst
     } while (contador < memoria.tamanioMemoria())
   }
 
-  def crearFila8Celdas() {
-    var contador = 0
-    val celdas_puertos = sim.busIO.puertos
-    var name = new W16("FFEF")
-    var row = 0
-    var fila: Fila4Celdas = Fila4Celdas(name.toString)
-    do {
-      if (row >= 4) {
-        row = 0
-        puertos.append(fila)
-        name = name.+(new W16("0004"))
-        fila = Fila4Celdas(name.toString)
-      }
-      fila(row, celdas_puertos.celda(contador))
-      contador = contador + 1
-      row = row + 1
-    } while (contador < celdas_puertos.tamanioCeldas())
-    puertos.append(fila)
-  }
+  
 
   def cambiarEdicion() {
     enabled = !enabled
@@ -278,7 +259,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
   }
 
   def createPuertosWindow() = {
-    (new PuertosWindow(this.getOwner(), model)).open()
+    (new PuertosWindow(this.getOwner(), this.getModelObject())).open()
   }
 
 }
