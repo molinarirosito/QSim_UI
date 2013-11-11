@@ -24,6 +24,7 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import org.uqbar.commons.utils.Observable
 import org.uqbar.arena.windows.MessageBox
+import org.uqbar.arena.bindings.NotNullObservable
 
 class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](owner, model) {
 
@@ -38,28 +39,39 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
     var form = new Panel(mainPanel)
     form.setLayout(new HorizontalLayout())
     var buttonPanel = new GroupPanel(form)
-    buttonPanel.setTitle("")
+    buttonPanel.setTitle("Acciones")
     buttonPanel.setLayout(new VerticalLayout())
+    
     new FileSelector(buttonPanel)
       .setCaption("Agregar")
       .bindValueToProperty("pathArchivo")
     new Button(buttonPanel).setCaption("Eliminar")
-    new Button(buttonPanel).setCaption("Ensamblar")
-      .onClick(new MessageSend(this.getModelObject(), "ensamblar"))
-
-    new Button(buttonPanel).setCaption("Cargar en memoria")
-      .onClick(new MessageSend(this, "cargar"))
-    crearPanelDeEdicion(form)
+    	.onClick(new MessageSend(this.getModelObject(), "eliminarArchivo"))
+    	.bindEnabled(new NotNullObservable("actual"))
+    
     new Label(buttonPanel).setText("Seleccionar Arquitectura Q:")
     val arquitecturasQ = new Selector[ArquitecturaQ](buttonPanel)
 	arquitecturasQ.setContents(Parser.arquitecturas, "name")		
-	arquitecturasQ.bindValueToProperty("arquitecturaActual");
+	arquitecturasQ.bindValueToProperty("arquitecturaActual")
+	
+	new Button(buttonPanel).setCaption("Ensamblar")
+      .onClick(new MessageSend(this.getModelObject(), "ensamblar"))
+      .bindEnabled(new NotNullObservable("arquitecturaActual"))
+    new Label(buttonPanel).setText("PC:")
+    
+    val pc = new TextBox(buttonPanel)
+    pc.bindValueToProperty("pc") 
+    pc.setWidth(110).setHeigth(15)
+    
+    new Button(buttonPanel).setCaption("Cargar en memoria")
+      .onClick(new MessageSend(this, "cargar"))
+      .bindEnabled(new NotNullObservable("programa"))
+    crearPanelDeEdicion(form)
+  
   }
 
- 
-
   def cargar() {
-    val sim = new SimuladorAppmodel(this.getModelObject().programa)
+    val sim = new SimuladorAppmodel(this.getModelObject().programa, this.getModelObject().pc)
     new QSimWindows(this, sim).open()
   }
 
@@ -89,14 +101,13 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
 }
 @Observable
 class QSimMain {
-  // TODO el metodo quitar archivo de la lista
 
   var archivos: java.util.List[Archivo] = scala.collection.immutable.List[Archivo]()
   var actual: Archivo = _
-  //var arquitecturas: java.util.List[ArquitecturasQ] = scala.collection.immutable.List[]() 
   var arquitecturaActual : ArquitecturaQ = _
   var programa: Programa = _
   var enabled = false
+  var pc = "0000"
   
   def cambiarEnabled() {
     enabled = !enabled
@@ -115,8 +126,12 @@ class QSimMain {
     val input = io.Source.fromFile(path)
     input.mkString
   }
+  def eliminarArchivo(){
+     archivos = archivos.-(actual)
+     actual = null
+  }
   def ensamblar() {
-    programa = Parser.ensamblarQ3SDFADSDFDSFASFASDFASDFASDFASD(archivos.map(_.codigo).mkString)
+    programa = arquitecturaActual.parser(archivos.map(_.codigo).mkString)
   }
 
   def takeName(path: String) = {

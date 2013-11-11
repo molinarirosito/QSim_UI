@@ -53,7 +53,7 @@ object SimuladorAppmodel{
 }
 
 @Observable
-class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.instrucciones)) {
+class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.instrucciones), pc:String="0000") {
   import org.uqbar.commons.model.UserException
   case class ModificarValorException(smth:String) extends UserException(smth) {
 
@@ -67,7 +67,7 @@ class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.inst
   var celdas = new java.util.ArrayList[Fila16Celdas]()
   
   crearFila16Celdas()
-  sim.cargarProgramaYRegistros(programa, "0000", Map[String, W16]())
+  sim.cargarProgramaYRegistros(programa, pc, Map[String, W16]())
 
   def crearFila16Celdas() {
     var contador = 0
