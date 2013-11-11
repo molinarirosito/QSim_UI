@@ -54,9 +54,14 @@ object SimuladorAppmodel{
 
 @Observable
 class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.instrucciones)) {
+  import org.uqbar.commons.model.UserException
+  case class ModificarValorException(smth:String) extends UserException(smth) {
+
+}
+  
   var never_enabled = false
   var enabled = false
-  // var programa = new Programa(instrucciones)
+
   var sim = Simulador()
   sim.inicializarSim()
   var celdas = new java.util.ArrayList[Fila16Celdas]()
@@ -83,10 +88,30 @@ class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.inst
     } while (contador < memoria.tamanioMemoria())
   }
 
+  def cheakearInputs(){
+    sim.cpu.registros.foreach(registro => {
+     if(registro.valor.hex.size<4)
+     {  throw new ModificarValorException(registro.getValorString + " No es un argumento válido para un registro.")}
+      })
+     sim.busIO.puertos.celdas.foreach(celda => {
+     if(celda.value.hex.size<4)
+     {  throw new ModificarValorException(celda.value.hex + " No es un argumento válido para una celda.")}
+      })
+     if(sim.cpu.pc.hex.size<4)
+     {  throw new ModificarValorException(sim.cpu.pc.hex + " No es un argumento válido para pc.")}
+       
+  }
   
 
-  def cambiarEdicion() {
+  def cambiarEdicion() {    
+    cheakearInputs()
     enabled = !enabled
+
+    if(enabled)
+    {sim.ciclo.ninguna_etapa}
+    else
+    {sim.ciclo.pasarAFetch}
+
   }
 
 }
