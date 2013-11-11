@@ -16,12 +16,13 @@ import org.uqbar.commons.utils.{ Observable, ReflectionUtils, When }
 import com.uqbar.commons.collections.Transformer
 import ar.edu.unq.tpi.qsim.model.State._
 import ar.edu.unq.tpi.qsim.model._
+import ar.edu.unq.tpi.qsim.parser._
+import ar.edu.unq.tpi.qsim.parser.ArquitecturaQ
 import ar.edu.unq.tpi.qsim.utils._
 import org.uqbar.arena.widgets.style.Style
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import org.uqbar.commons.utils.Observable
-import ar.edu.unq.tpi.qsim.parser.Parser
 import org.uqbar.arena.windows.MessageBox
 
 class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](owner, model) {
@@ -30,7 +31,7 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
     this.setTaskDescription("Agregue los archivos .qsim que desee ensamblar y luego cargar en memoria")
     super.createErrorsPanel(parent)
   }
-
+  
   override def createFormPanel(mainPanel: Panel) = {
     this.setTitle("QSim")
     this.setIconImage(getClass().getResource("/icon.png").getPath())
@@ -49,6 +50,10 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
     new Button(buttonPanel).setCaption("Cargar en memoria")
       .onClick(new MessageSend(this, "cargar"))
     crearPanelDeEdicion(form)
+    new Label(buttonPanel).setText("Seleccionar Arquitectura Q:")
+    val arquitecturasQ = new Selector[ArquitecturaQ](buttonPanel)
+	arquitecturasQ.setContents(Parser.arquitecturas, "name")		
+	arquitecturasQ.bindValueToProperty("arquitecturaActual");
   }
 
  
@@ -88,6 +93,8 @@ class QSimMain {
 
   var archivos: java.util.List[Archivo] = scala.collection.immutable.List[Archivo]()
   var actual: Archivo = _
+  //var arquitecturas: java.util.List[ArquitecturasQ] = scala.collection.immutable.List[]() 
+  var arquitecturaActual : ArquitecturaQ = _
   var programa: Programa = _
   var enabled = false
   
