@@ -212,7 +212,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       text.setWidth(30).setHeigth(15)
       text.withFilter(new TextFilter() {
         def accept(event: TextInputEvent): Boolean = {
-          event.getPotentialTextResult().matches("[0-1]{0,1}")
+          event.getPotentialTextResult().matches("[0-1]{1}")
         }
       })
     })
