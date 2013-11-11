@@ -28,15 +28,18 @@ class PuertosWindow(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog
     this.setTitle("Qsim - Puertos")
     this.setIconImage(getClass().getResource("/icon.png").getPath())
     var form = new Panel(mainPanel)
-    form.setLayout(new HorizontalLayout())
+    form.setLayout(new VerticalLayout())
     crearPanelDePuertos(form)
     agregarBoton(form)
   }
   
   def agregarBoton(parent: Panel)
   {
-    
-    val editable = new Button(parent)
+    var form = new Panel(parent)
+    form.setLayout(new HorizontalLayout())
+    new Label(form).setWidth(273)
+   
+    val editable = new Button(form)
       .setCaption("Editable")
       .onClick(new MessageSend(model, "cambiarEdicion"))
       .setAsDefault

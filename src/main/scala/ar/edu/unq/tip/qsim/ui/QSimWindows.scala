@@ -220,9 +220,6 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       })
       text.bindEnabled(new ObservableProperty(this.getModelObject(), "enabled"))
       text.bindValueToProperty("valor.hex")
-      text.bindBackgroudToTransformer("cambio", new Transformer[Boolean, Color]() {
-        def transform(cambio: Boolean) = if (cambio) Color.BLUE else Color.WHITE
-      })
     })
   }
 
