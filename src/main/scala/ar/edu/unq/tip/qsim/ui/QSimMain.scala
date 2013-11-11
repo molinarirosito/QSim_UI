@@ -27,45 +27,40 @@ import org.uqbar.arena.windows.MessageBox
 class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](owner, model) {
 
   override def createErrorsPanel(parent: Panel)= {
-    this.setTaskDescription("Que descripcion tan copada... locoooo!!")
+    this.setTaskDescription("Agregue los archivos .qsim que desee ensamblar y luego cargar en memoria")
     super.createErrorsPanel(parent)
   }
 
   override def createFormPanel(mainPanel: Panel) = {
-    this.setTitle("Este ventana es re-grosa vite!!!")
+    this.setTitle("QSim")
     this.setIconImage(getClass().getResource("/icon.png").getPath())
     var form = new Panel(mainPanel)
     form.setLayout(new HorizontalLayout())
     var buttonPanel = new GroupPanel(form)
-    buttonPanel.setTitle("Botones")
+    buttonPanel.setTitle("")
     buttonPanel.setLayout(new VerticalLayout())
     new FileSelector(buttonPanel)
-      //    	 .extensions(".qsim")
       .setCaption("Agregar")
       .bindValueToProperty("pathArcihvo")
     new Button(buttonPanel).setCaption("Eliminar")
-    new Button(buttonPanel).setCaption("Compilar")
-      .onClick(new MessageSend(this.getModelObject(), "compilar"))
+    new Button(buttonPanel).setCaption("Ensamblar")
+      .onClick(new MessageSend(this.getModelObject(), "ensamblar"))
 
-    new Button(buttonPanel).setCaption("Run")
+    new Button(buttonPanel).setCaption("Cargar en memoria")
       .onClick(new MessageSend(this, "run"))
 
-    new Button(buttonPanel).setCaption("Mostrar dialog")
-      .onClick(new MessageSend(this, "showMessage"))
 
-    crearPanelDePuertos(form)
+    crearPanelDeEdicion(form)
   }
 
-  def showMessage() {
-    this.showMessageBox(MessageBox.Type.Information, "Mira como te meneo");
-  }
+ 
 
   def run() {
     val sim = new SimuladorAppmodel(this.getModelObject().programa)
     new QSimWindows(this, sim).open()
   }
 
-  def crearPanelDePuertos(parent: Panel) {
+  def crearPanelDeEdicion(parent: Panel) {
     var panelForm = new Panel(parent)
     panelForm.setLayout(new ColumnLayout(2))
     val list = new List(panelForm, "archivos")
@@ -96,6 +91,11 @@ class QSimMain {
   var archivos: java.util.List[Archivo] = scala.collection.immutable.List[Archivo]()
   var actual: Archivo = _
   var programa: Programa = _
+  var enabled = false
+  
+  def cambiarEnabled() {
+    enabled = !enabled
+  }
 
   def setPathArcihvo(path: String) {
     var nombre = takeName(path)
@@ -110,7 +110,7 @@ class QSimMain {
     val input = io.Source.fromFile(path)
     input.mkString
   }
-  def compilar() {
+  def ensamblar() {
     programa = Parser.ensamblarQ3SDFADSDFDSFASFASDFASDFASDFASD(archivos.map(_.codigo).mkString)
   }
 
