@@ -41,21 +41,19 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
     buttonPanel.setLayout(new VerticalLayout())
     new FileSelector(buttonPanel)
       .setCaption("Agregar")
-      .bindValueToProperty("pathArcihvo")
+      .bindValueToProperty("pathArchivo")
     new Button(buttonPanel).setCaption("Eliminar")
     new Button(buttonPanel).setCaption("Ensamblar")
       .onClick(new MessageSend(this.getModelObject(), "ensamblar"))
 
     new Button(buttonPanel).setCaption("Cargar en memoria")
-      .onClick(new MessageSend(this, "run"))
-
-
+      .onClick(new MessageSend(this, "cargar"))
     crearPanelDeEdicion(form)
   }
 
  
 
-  def run() {
+  def cargar() {
     val sim = new SimuladorAppmodel(this.getModelObject().programa)
     new QSimWindows(this, sim).open()
   }
@@ -97,14 +95,14 @@ class QSimMain {
     enabled = !enabled
   }
 
-  def setPathArcihvo(path: String) {
+  def setPathArchivo(path: String) {
     var nombre = takeName(path)
     var codigo = readFile(path)
     var archivo = new Archivo(nombre, codigo)
     archivos = archivos.+:(archivo)
     println(archivos)
   }
-  def getPathArcihvo() = ""
+  def getPathArchivo() = ""
 
   def readFile(path: String) = {
     val input = io.Source.fromFile(path)
@@ -127,5 +125,5 @@ class Archivo(var nombre: String, var codigo: String) {
 
 object laaa extends App {
   var la = new QSimMain()
-  la.setPathArcihvo("src/main/resources/programaQ1.qsim")
+  la.setPathArchivo("src/main/resources/programaQ1.qsim")
 }

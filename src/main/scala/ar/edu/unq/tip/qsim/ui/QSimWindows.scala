@@ -269,9 +269,9 @@ object QSimRunner extends Application with App {
         new QSimWindows(this, sim)
 
     var la = new QSimMain()
-  la.setPathArcihvo("src/main/resources/programaQ1.qsim")
-   la.setPathArcihvo("src/main/resources/programaQ2.qsim")
-    la.setPathArcihvo("src/main/resources/programaQ3.qsim")
+  la.setPathArchivo("src/main/resources/programaQ1.qsim")
+   la.setPathArchivo("src/main/resources/programaQ2.qsim")
+    la.setPathArchivo("src/main/resources/programaQ3.qsim")
     new QSimWindow(this, la)
   }
   start()
