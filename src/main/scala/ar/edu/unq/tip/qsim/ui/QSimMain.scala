@@ -104,7 +104,7 @@ class QSimMain {
 
   var archivos: java.util.List[Archivo] = scala.collection.immutable.List[Archivo]()
   var actual: Archivo = _
-  var arquitecturaActual : ArquitecturaQ = _
+  var arquitecturaActual : ArquitecturaQ = Parser.arquitecturas(0)
   var programa: Programa = _
   var enabled = false
   var pc = "0000"
