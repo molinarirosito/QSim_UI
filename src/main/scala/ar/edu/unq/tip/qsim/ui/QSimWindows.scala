@@ -42,7 +42,7 @@ case class Fila4Celdas(name: String) {
 case class ModificarValorException(smth:String) extends UserException(smth)
 
 @Observable
-class SimuladorAppmodel(programa: Programa, pc:String="0000", tamañoDeMemoria:Int) {
+class SimuladorAppmodel(programa: Programa, pc:String="0000") {
   var never_enabled = false
   var enabled = false
 
@@ -55,7 +55,7 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000", tamañoDeMemoria:I
 
   def crearFila16Celdas() {
     var contador = 0
-    val memoria = sim.busIO.memoria
+    var memoria = sim.busIO.memoria
     var name = new W16("0000")
     var row = 0
     var fila: Fila16Celdas = new Fila16Celdas(name.toString)
@@ -69,7 +69,8 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000", tamañoDeMemoria:I
       fila(row, memoria.celda(contador))
       contador = contador + 1
       row = row + 1
-    } while (contador < tamañoDeMemoria)
+    } while (contador <  memoria.tamanioMemoria)
+      celdas.append(fila)
   }
 
   def cheakearInputs(){
@@ -169,7 +170,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       new Label(FlagsForm).setText("SP")
       val text_sp = new TextBox(FlagsForm)
       text_sp.bindEnabledToProperty("never_enabled")
-      text_sp.bindValueToProperty(s"sim.cpu.sp")
+      text_sp.bindValueToProperty(s"sim.cpu.sp.hex")
       text_sp.setWidth(110).setHeigth(15)
       
       new Label(FlagsForm).setText("IR")

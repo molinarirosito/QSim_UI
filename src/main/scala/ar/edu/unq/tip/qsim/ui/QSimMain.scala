@@ -36,9 +36,9 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
   override def createFormPanel(mainPanel: Panel) = {
     this.setTitle("QSim")
     // de esta forma se tiene que poner cuando generamos el .jar
-    //    this.setIconImage("icon.png")
+    this.setIconImage("icon.png")
     // de esta otra forma es para desarrollo
-    this.setIconImage(getClass().getResource("/icon.png").getPath())
+    // this.setIconImage(getClass().getResource("/icon.png").getPath())
 
     var form = new Panel(mainPanel)
     form.setLayout(new HorizontalLayout())
@@ -74,11 +74,11 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
     pc.setWidth(110).setHeigth(15)
     pc.withFilter(w16Filter)
 
-    new Label(buttonPanel).setText("Tamaño de memoria")
-    val memoria = new TextBox(buttonPanel)
-    memoria.bindValueToProperty("tamañoDeMemoria")
-    memoria.setWidth(110).setHeigth(15)
-    memoria.withFilter(w16Filter)
+    //    new Label(buttonPanel).setText("Tamaño de memoria")
+    //    val memoria = new TextBox(buttonPanel)
+    //    memoria.bindValueToProperty("tamañoDeMemoria")
+    //    memoria.setWidth(110).setHeigth(15)
+    //    memoria.withFilter(w16Filter)
 
     new Button(buttonPanel).setCaption("Cargar en memoria")
       .onClick(new MessageSend(this, "cargar"))
@@ -87,7 +87,7 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
   }
 
   def cargar() {
-    val sim = new SimuladorAppmodel(model.programa, model.pc, Util.hexToInteger(model.tamañoDeMemoria))
+    val sim = new SimuladorAppmodel(model.programa, model.pc)
     new QSimWindows(this, sim).open()
   }
 
@@ -124,7 +124,7 @@ class QSimMain {
   var programa: Programa = _
   var enabled = false
   var pc = "0000"
-  var tamañoDeMemoria = "0300"
+  //var tamañoDeMemoria = "0300"
 
   def cambiarEnabled() {
     enabled = !enabled
