@@ -56,7 +56,6 @@ object SimuladorAppmodel{
 class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.instrucciones), pc:String="0000") {
   import org.uqbar.commons.model.UserException
   case class ModificarValorException(smth:String) extends UserException(smth) {
-
 }
   
   var never_enabled = false

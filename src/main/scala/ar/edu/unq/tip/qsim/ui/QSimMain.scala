@@ -28,46 +28,47 @@ import org.uqbar.arena.bindings.NotNullObservable
 
 class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](owner, model) {
 
-  override def createErrorsPanel(parent: Panel)= {
+  override def createErrorsPanel(parent: Panel) = {
     this.setTaskDescription("Agregue los archivos .qsim que desee ensamblar y luego cargar en memoria")
     super.createErrorsPanel(parent)
   }
-  
+
   override def createFormPanel(mainPanel: Panel) = {
     this.setTitle("QSim")
     this.setIconImage(getClass().getResource("/icon.png").getPath())
+
     var form = new Panel(mainPanel)
     form.setLayout(new HorizontalLayout())
     var buttonPanel = new GroupPanel(form)
     buttonPanel.setTitle("Acciones")
     buttonPanel.setLayout(new VerticalLayout())
-    
+
     new FileSelector(buttonPanel)
       .setCaption("Agregar")
       .bindValueToProperty("pathArchivo")
     new Button(buttonPanel).setCaption("Eliminar")
-    	.onClick(new MessageSend(this.getModelObject(), "eliminarArchivo"))
-    	.bindEnabled(new NotNullObservable("actual"))
-    
+      .onClick(new MessageSend(this.getModelObject(), "eliminarArchivo"))
+      .bindEnabled(new NotNullObservable("actual"))
+
     new Label(buttonPanel).setText("Seleccionar Arquitectura Q:")
     val arquitecturasQ = new Selector[ArquitecturaQ](buttonPanel)
-	arquitecturasQ.setContents(Parser.arquitecturas, "name")		
-	arquitecturasQ.bindValueToProperty("arquitecturaActual")
-	
-	new Button(buttonPanel).setCaption("Ensamblar")
+    arquitecturasQ.setContents(Parser.arquitecturas, "name")
+    arquitecturasQ.bindValueToProperty("arquitecturaActual")
+
+    new Button(buttonPanel).setCaption("Ensamblar")
       .onClick(new MessageSend(this.getModelObject(), "ensamblar"))
       .bindEnabled(new NotNullObservable("arquitecturaActual"))
     new Label(buttonPanel).setText("PC:")
-    
+
     val pc = new TextBox(buttonPanel)
-    pc.bindValueToProperty("pc") 
+    pc.bindValueToProperty("pc")
     pc.setWidth(110).setHeigth(15)
-    
+     
     new Button(buttonPanel).setCaption("Cargar en memoria")
       .onClick(new MessageSend(this, "cargar"))
       .bindEnabled(new NotNullObservable("programa"))
     crearPanelDeEdicion(form)
-  
+
   }
 
   def cargar() {
@@ -85,18 +86,18 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
 
     val codeEditor = new KeyWordTextArea(panelForm)
     codeEditor.setWidth(300).setHeigth(300).bindValueToProperty("actual.codigo")
-    codeEditor.keyWords("[a-z_]*") 
-           .foreground(Color.MAGENTA).fontStyle(Style.ITALIC)
-   codeEditor.keyWords("ADD","MOV","SUB","CALL","JAMP","RET", "MUL", "RET")
-           .foreground(Color.BLUE).fontStyle(Style.BOLD)
-   codeEditor.keyWords("""//[\w]+[\d]*\n?""")
-           .foreground(Color.GREEN)
-   codeEditor.keyWords("R[0-9]{1}")
-           .foreground(Color.DARK_GRAY).fontStyle(Style.BOLD).fontStyle(Style.ITALIC)
-   codeEditor.keyWords("0x[0-9A-F]{4}")
-                   .foreground(Color.ORANGE)
-   codeEditor.keyWords("[\\(\\)\\[\\]\\{\\}]")
-                   .foreground(Color.DARK_GRAY).fontStyle(Style.BOLD)
+    codeEditor.keyWords("[a-z_]*")
+      .foreground(Color.MAGENTA).fontStyle(Style.ITALIC)
+    codeEditor.keyWords("ADD", "MOV", "SUB", "CALL", "JAMP", "RET", "MUL", "RET")
+      .foreground(Color.BLUE).fontStyle(Style.BOLD)
+    codeEditor.keyWords("""//[\w]+[\d]*\n?""")
+      .foreground(Color.GREEN)
+    codeEditor.keyWords("R[0-9]{1}")
+      .foreground(Color.DARK_GRAY).fontStyle(Style.BOLD).fontStyle(Style.ITALIC)
+    codeEditor.keyWords("0x[0-9A-F]{4}")
+      .foreground(Color.ORANGE)
+    codeEditor.keyWords("[\\(\\)\\[\\]\\{\\}]")
+      .foreground(Color.DARK_GRAY).fontStyle(Style.BOLD)
   }
 }
 @Observable
@@ -104,31 +105,35 @@ class QSimMain {
 
   var archivos: java.util.List[Archivo] = scala.collection.immutable.List[Archivo]()
   var actual: Archivo = _
-  var arquitecturaActual : ArquitecturaQ = Parser.arquitecturas(0)
+  var arquitecturaActual: ArquitecturaQ = Parser.arquitecturas(0)
   var programa: Programa = _
   var enabled = false
   var pc = "0000"
-  
+
   def cambiarEnabled() {
     enabled = !enabled
   }
 
   def setPathArchivo(path: String) {
-    var nombre = takeName(path)
-    var codigo = readFile(path)
-    var archivo = new Archivo(nombre, codigo)
-    archivos = archivos.+:(archivo)
-    println(archivos)
+    if (path != null) {
+      var nombre = takeName(path)
+      var codigo = readFile(path)
+      var archivo = new Archivo(nombre, codigo)
+      archivos = archivos.+:(archivo)
+      println(archivos)
+
+    }
   }
+
   def getPathArchivo() = ""
 
   def readFile(path: String) = {
     val input = io.Source.fromFile(path)
     input.mkString
   }
-  def eliminarArchivo(){
-     archivos = archivos.-(actual)
-     actual = null
+  def eliminarArchivo() {
+    archivos = archivos.-(actual)
+    actual = null
   }
   def ensamblar() {
     programa = arquitecturaActual.parser(archivos.map(_.codigo).mkString)
