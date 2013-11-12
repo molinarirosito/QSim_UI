@@ -35,7 +35,8 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
   
   override def createFormPanel(mainPanel: Panel) = {
     this.setTitle("QSim")
-    this.setIconImage(getClass().getResource("/icon.png").getPath())
+    this.setIconImage("icon.png")
+//    this.setIconImage(getClass().getResource("/icon.png").getPath())
     var form = new Panel(mainPanel)
     form.setLayout(new HorizontalLayout())
     var buttonPanel = new GroupPanel(form)
@@ -57,11 +58,24 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
 	new Button(buttonPanel).setCaption("Ensamblar")
       .onClick(new MessageSend(this.getModelObject(), "ensamblar"))
       .bindEnabled(new NotNullObservable("arquitecturaActual"))
+
+     val w16Filter = new TextFilter() {
+        def accept(event: TextInputEvent): Boolean = {
+          event.getPotentialTextResult().matches("[A-F0-9]{0,4}")
+        }
+      }
+      
     new Label(buttonPanel).setText("PC:")
-    
     val pc = new TextBox(buttonPanel)
     pc.bindValueToProperty("pc") 
     pc.setWidth(110).setHeigth(15)
+    pc.withFilter(w16Filter)
+    
+    new Label(buttonPanel).setText("Tamaño de memoria")
+    val memoria = new TextBox(buttonPanel)
+    memoria.bindValueToProperty("tamañoDeMemoria") 
+    memoria.setWidth(110).setHeigth(15)
+    memoria.withFilter(w16Filter)
     
     new Button(buttonPanel).setCaption("Cargar en memoria")
       .onClick(new MessageSend(this, "cargar"))
@@ -71,7 +85,7 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
   }
 
   def cargar() {
-    val sim = new SimuladorAppmodel(this.getModelObject().programa, this.getModelObject().pc)
+    val sim = new SimuladorAppmodel(model.programa, model.pc, Util.hexToInteger(model.tamañoDeMemoria))
     new QSimWindows(this, sim).open()
   }
 
@@ -108,6 +122,7 @@ class QSimMain {
   var programa: Programa = _
   var enabled = false
   var pc = "0000"
+  var tamañoDeMemoria = "0500"
   
   def cambiarEnabled() {
     enabled = !enabled

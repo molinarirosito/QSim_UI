@@ -48,7 +48,8 @@
 							<mainClass>ar.edu.unq.tip.qsim.ui.QSimRunner</mainClass>
 						</manifest>
 					</archive>
-					<argLine>-Djava.system.class.loader=com.uqbar.apo.APOClassLoader</argLine>
+        			<appendAssemblyId>false</appendAssemblyId>
+					<finalName>QSim</finalName>
 				</configuration>
 				<executions>
 					<execution>

@@ -53,7 +53,7 @@ object SimuladorAppmodel{
 }
 
 @Observable
-class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.instrucciones), pc:String="0000") {
+class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.instrucciones), pc:String="0000", tamañoDeMemoria:Int) {
   import org.uqbar.commons.model.UserException
   case class ModificarValorException(smth:String) extends UserException(smth) {
 
@@ -85,7 +85,7 @@ class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.inst
       fila(row, memoria.celda(contador))
       contador = contador + 1
       row = row + 1
-    } while (contador < memoria.tamanioMemoria())
+    } while (contador < tamañoDeMemoria)
   }
 
   def cheakearInputs(){
@@ -126,7 +126,6 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
    
   override def createFormPanel(mainPanel: Panel) = {
     this.setTitle("Qsim")
-    this.setIconImage(getClass().getResource("/icon.png").getPath())
     var groupPanel = new Panel(mainPanel)
     				.setLayout(new VerticalLayout())
     var form = new Panel(groupPanel)
@@ -290,13 +289,13 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
 object QSimRunner extends Application with App {
 
   def createMainWindow(): Window[_] = {
-        val sim = new SimuladorAppmodel()
-        new QSimWindows(this, sim)
+//        val sim = new SimuladorAppmodel()
+//        new QSimWindows(this, sim)
 
     var la = new QSimMain()
-  la.setPathArchivo("src/main/resources/programaQ1.qsim")
-   la.setPathArchivo("src/main/resources/programaQ2.qsim")
-    la.setPathArchivo("src/main/resources/programaQ3.qsim")
+//  la.setPathArchivo("src/main/resources/programaQ1.qsim")
+//   la.setPathArchivo("src/main/resources/programaQ2.qsim")
+//    la.setPathArchivo("src/main/resources/programaQ3.qsim")
     new QSimWindow(this, la)
   }
   start()
