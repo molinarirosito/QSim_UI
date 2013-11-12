@@ -16,6 +16,7 @@ import org.uqbar.arena.widgets.tables.Table
 import org.uqbar.arena.windows.{ Dialog, Window, WindowOwner }
 import org.uqbar.commons.utils.{ Observable, ReflectionUtils, When }
 import com.uqbar.commons.collections.Transformer
+import org.uqbar.commons.model.UserException
 import org.uqbar.arena.widgets.style.Style
 import ar.edu.unq.tpi.qsim.model.State._
 import ar.edu.unq.tpi.qsim.model._
@@ -38,27 +39,10 @@ case class Fila4Celdas(name: String) {
   }
 }
 
-object SimuladorAppmodel{
-	var instrucciones = scala.List(
-			ADD(R0, Inmediato("0002")),
-			ADD(R1, Inmediato("00AF")),
-			MOV(Directo(Inmediato("FFFD")), Inmediato("FFFF")),
-			MOV(Directo(Inmediato("0040")), Inmediato("AAAA")),
-			MOV(Directo(Inmediato("0001")), Inmediato("2222")),
-			MOV(Directo(Inmediato("0001")), Inmediato("9999")),
-			ADD(R0, Inmediato("0002")),
-			MUL(R4, Inmediato("0001")),
-			MOV(R5, Inmediato("0056")),
-			SUB(R5, Inmediato("000A")))
-}
+case class ModificarValorException(smth:String) extends UserException(smth)
 
 @Observable
-class SimuladorAppmodel(programa: Programa = new Programa(SimuladorAppmodel.instrucciones), pc:String="0000", tamañoDeMemoria:Int) {
-  import org.uqbar.commons.model.UserException
-  case class ModificarValorException(smth:String) extends UserException(smth) {
-
-}
-  
+class SimuladorAppmodel(programa: Programa, pc:String="0000", tamañoDeMemoria:Int) {
   var never_enabled = false
   var enabled = false
 
@@ -289,9 +273,6 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
 object QSimRunner extends Application with App {
 
   def createMainWindow(): Window[_] = {
-//        val sim = new SimuladorAppmodel()
-//        new QSimWindows(this, sim)
-
     var la = new QSimMain()
 //  la.setPathArchivo("src/main/resources/programaQ1.qsim")
 //   la.setPathArchivo("src/main/resources/programaQ2.qsim")

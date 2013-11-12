@@ -35,8 +35,8 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
   
   override def createFormPanel(mainPanel: Panel) = {
     this.setTitle("QSim")
-    this.setIconImage("icon.png")
-//    this.setIconImage(getClass().getResource("/icon.png").getPath())
+//    this.setIconImage("icon.png")
+    this.setIconImage(getClass().getResource("/icon.png").getPath())
     var form = new Panel(mainPanel)
     form.setLayout(new HorizontalLayout())
     var buttonPanel = new GroupPanel(form)
