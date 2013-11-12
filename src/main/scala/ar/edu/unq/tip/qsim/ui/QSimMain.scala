@@ -122,7 +122,7 @@ class QSimMain {
   var programa: Programa = _
   var enabled = false
   var pc = "0000"
-  var tamañoDeMemoria = "0500"
+  var tamañoDeMemoria = "0300"
   
   def cambiarEnabled() {
     enabled = !enabled
