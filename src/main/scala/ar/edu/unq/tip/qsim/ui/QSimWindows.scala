@@ -86,7 +86,7 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000") {
      {  throw new ModificarValorException(sim.cpu.pc.hex + " No es un argumento válido para pc.")}
        
   }
-  
+
 
   def cambiarEdicion() {    
     cheakearInputs()
@@ -155,7 +155,12 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     }
 
   }
-  
+
+   val w16Filter = new TextFilter() {
+      def accept(event: TextInputEvent): Boolean = {
+        event.getPotentialTextResult().matches("[A-F0-9]{0,4}")
+      }
+    }
   def crearRegistrosEspeciales(parent: Panel) {
     var FlagsForm = new GroupPanel(parent)
     FlagsForm.setTitle("Registros especiales")
@@ -166,6 +171,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       text_pc.bindEnabledToProperty("enabled")
       text_pc.bindValueToProperty(s"sim.cpu.pc.hex")
       text_pc.setWidth(110).setHeigth(15)
+      text_pc.withFilter(w16Filter)
       
       new Label(FlagsForm).setText("SP")
       val text_sp = new TextBox(FlagsForm)

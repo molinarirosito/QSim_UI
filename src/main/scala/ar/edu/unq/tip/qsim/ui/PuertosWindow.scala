@@ -25,9 +25,9 @@ class PuertosWindow(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog
   override def createFormPanel(mainPanel: Panel) = {
     this.setTitle("Qsim - Puertos")
     // de esta forma se tiene que poner cuando generamos el .jar
-    this.setIconImage("icon.png")
+    //this.setIconImage("icon.png")
     // de esta otra forma es para desarrollo
-    // this.setIconImage(getClass().getResource("/icon.png").getPath())
+     this.setIconImage(getClass().getResource("/icon.png").getPath())
     var form = new Panel(mainPanel)
     form.setLayout(new VerticalLayout())
     crearPanelDePuertos(form)
