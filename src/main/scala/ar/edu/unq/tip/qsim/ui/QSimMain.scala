@@ -36,9 +36,9 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
   override def createFormPanel(mainPanel: Panel) = {
     this.setTitle("QSim")
     // de esta forma se tiene que poner cuando generamos el .jar
-    this.setIconImage("icon.png")
+    //this.setIconImage("icon.png")
     // de esta otra forma es para desarrollo
-    // this.setIconImage(getClass().getResource("/icon.png").getPath())
+    this.setIconImage(getClass().getResource("/icon.png").getPath())
 
     var form = new Panel(mainPanel)
     form.setLayout(new HorizontalLayout())
