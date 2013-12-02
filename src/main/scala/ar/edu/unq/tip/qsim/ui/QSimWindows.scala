@@ -48,11 +48,12 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000") {
 
   var sim = Simulador()
   sim.inicializarSim()
+  //vaciarRegistros()
   var celdas = new java.util.ArrayList[Fila16Celdas]()
   
   crearFila16Celdas()
   sim.cargarProgramaYRegistros(programa, pc, Map[String, W16]())
-
+  
   def crearFila16Celdas() {
     var contador = 0
     var memoria = sim.busIO.memoria
@@ -72,7 +73,15 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000") {
     } while (contador <  memoria.tamanioMemoria)
       celdas.append(fila)
   }
-
+  
+  def vaciarRegistros(){
+	  var list_registros = sim.cpu.registros
+	  
+	  list_registros.foreach(registro => {
+		  registro.valor.*(new W16("0000"))
+	  })
+  }
+  
   def cheakearInputs(){
     sim.cpu.registros.foreach(registro => {
      if(registro.valor.hex.size<4)
@@ -246,13 +255,25 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     ciclo_Form.setTitle("Ciclo ejecucion")
     ciclo_Form.setLayout(new HorizontalLayout())
     
-    scala.List("fetch", "decode", "execute").foreach(action => {
+    
       new Button(ciclo_Form)
-        .setCaption(StringUtils.capitalize(action))
-        .onClick(new MessageSend(model.sim, action))
+        .setCaption(StringUtils.capitalize("Buscar"))
+        .onClick(new MessageSend(model.sim, "fetch"))
         .setAsDefault
-        .bindEnabled(new ObservableProperty(model.sim.ciclo, action))
-    })   
+        .bindEnabled(new ObservableProperty(model.sim.ciclo, "fetch"))
+        
+     new Button(ciclo_Form)
+        .setCaption(StringUtils.capitalize("Dedodificar"))
+        .onClick(new MessageSend(model.sim, "decode"))
+        .setAsDefault
+        .bindEnabled(new ObservableProperty(model.sim.ciclo, "decode"))
+        
+     new Button(ciclo_Form)
+        .setCaption(StringUtils.capitalize("Ejecutar"))
+        .onClick(new MessageSend(model.sim, "execute"))
+        .setAsDefault
+        .bindEnabled(new ObservableProperty(model.sim.ciclo, "execute"))
+       
     
     
     var buttons_Form = new GroupPanel(panelForm)
@@ -260,7 +281,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     buttons_Form.setLayout(new HorizontalLayout())
 
     val editable = new Button(buttons_Form)
-      .setCaption("Editable")
+      .setCaption("Editar")
       .onClick(new MessageSend(model, "cambiarEdicion"))
       .setAsDefault
 
