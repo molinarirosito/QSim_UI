@@ -48,7 +48,7 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000") {
 
   var sim = Simulador()
   sim.inicializarSim()
-  //vaciarRegistros()
+  vaciarRegistros()
   var celdas = new java.util.ArrayList[Fila16Celdas]()
   
   crearFila16Celdas()
@@ -78,7 +78,7 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000") {
 	  var list_registros = sim.cpu.registros
 	  
 	  list_registros.foreach(registro => {
-		  registro.valor.*(new W16("0000"))
+		  registro.valor = new W16("0000")
 	  })
   }
   
