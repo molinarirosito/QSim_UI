@@ -151,6 +151,7 @@ class QSimMain {
     actual = null
   }
   def ensamblar() {
+    programa = null
     programa = arquitecturaActual.parser(archivos.map(_.codigo).mkString)
   }
 
