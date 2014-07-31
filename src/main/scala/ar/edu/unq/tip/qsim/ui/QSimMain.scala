@@ -1,30 +1,35 @@
 package ar.edu.unq.tip.qsim.ui
 
 import java.awt.Color
+
 import scala.collection.JavaConversions.asScalaBuffer
-import scala.collection.mutable.Map
-import org.apache.commons.lang.StringUtils
-import org.uqbar.arena.Application
+import scala.collection.JavaConversions.bufferAsJavaList
+import scala.collection.JavaConversions.seqAsJavaList
+
 import org.uqbar.arena.actions.MessageSend
-import org.uqbar.arena.bindings.ObservableProperty
-import org.uqbar.arena.layout.{ ColumnLayout, HorizontalLayout, VerticalLayout }
-import org.uqbar.arena.widgets._
-import org.uqbar.arena.widgets.tables.Column
-import org.uqbar.arena.widgets.tables.Table
-import org.uqbar.arena.windows.{ Dialog, Window, WindowOwner }
-import org.uqbar.commons.utils.{ Observable, ReflectionUtils, When }
-import com.uqbar.commons.collections.Transformer
-import ar.edu.unq.tpi.qsim.model.State._
-import ar.edu.unq.tpi.qsim.model._
-import ar.edu.unq.tpi.qsim.parser._
-import ar.edu.unq.tpi.qsim.parser.ArquitecturaQ
-import ar.edu.unq.tpi.qsim.utils._
-import org.uqbar.arena.widgets.style.Style
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import org.uqbar.commons.utils.Observable
-import org.uqbar.arena.windows.MessageBox
 import org.uqbar.arena.bindings.NotNullObservable
+import org.uqbar.arena.layout.ColumnLayout
+import org.uqbar.arena.layout.HorizontalLayout
+import org.uqbar.arena.layout.VerticalLayout
+import org.uqbar.arena.widgets.Button
+import org.uqbar.arena.widgets.FileSelector
+import org.uqbar.arena.widgets.GroupPanel
+import org.uqbar.arena.widgets.KeyWordTextArea
+import org.uqbar.arena.widgets.Label
+import org.uqbar.arena.widgets.List
+import org.uqbar.arena.widgets.Panel
+import org.uqbar.arena.widgets.Selector
+import org.uqbar.arena.widgets.TextBox
+import org.uqbar.arena.widgets.TextFilter
+import org.uqbar.arena.widgets.TextInputEvent
+import org.uqbar.arena.widgets.style.Style
+import org.uqbar.arena.windows.Dialog
+import org.uqbar.arena.windows.WindowOwner
+import org.uqbar.commons.utils.Observable
+
+import ar.edu.unq.tpi.qsim.model.Programa
+import ar.edu.unq.tpi.qsim.parser.ArquitecturaQ
+import ar.edu.unq.tpi.qsim.parser.Parser
 
 class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](owner, model) {
 
@@ -71,7 +76,7 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
     new Label(buttonPanel).setText("PC:")
     val pc = new TextBox(buttonPanel)
     pc.bindValueToProperty("pc")
-    pc.setWidth(110).setHeigth(15)
+    pc.setWidth(110).setHeight(15)
     pc.withFilter(w16Filter)
 
     //    new Label(buttonPanel).setText("Tamaño de memoria")
@@ -96,11 +101,11 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
     panelForm.setLayout(new ColumnLayout(2))
     val list = new List(panelForm, "archivos")
     list.setWidth(200)
-      .setHeigth(300)
+      .setHeight(300)
       .bindValueToProperty("actual")
 
     val codeEditor = new KeyWordTextArea(panelForm)
-    codeEditor.setWidth(300).setHeigth(300).bindValueToProperty("actual.codigo")
+    codeEditor.setWidth(300).setHeight(300).bindValueToProperty("actual.codigo")
     codeEditor.keyWords("[a-z_]*")
       .foreground(Color.MAGENTA).fontStyle(Style.ITALIC)
     codeEditor.keyWords("ADD", "MOV", "SUB", "CALL", "JAMP", "RET", "MUL", "RET")
@@ -151,6 +156,7 @@ class QSimMain {
     actual = null
   }
   def ensamblar() {
+    programa = null
     programa = arquitecturaActual.parser(archivos.map(_.codigo).mkString)
   }
 

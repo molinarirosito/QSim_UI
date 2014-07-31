@@ -42,7 +42,6 @@ class PuertosWindow(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog
     val editable = new Button(form)
       .setCaption("Editable")
       .onClick(new MessageSend(model, "cambiarEdicion"))
-      .setAsDefault
   }
 
   def crearPanelDePuertos(parent: Panel) {
@@ -62,16 +61,16 @@ class PuertosWindow(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog
           event.getPotentialTextResult().matches("[A-F0-9]{0,4}")
         }
       })
-      text.bindBackgroudToTransformer("state", new Transformer[Type, Color]() {
-        def transform(element: Type) = element match {
-          case NONE ⇒ Color.WHITE
-          case PROGRAM ⇒ Color.LIGHT_GRAY
-          case STORE ⇒ Color.BLUE
-          case FECH_DECODE ⇒ Color.GREEN
-          case EXECUTED ⇒ Color.CYAN
-          case _ ⇒ null
-        }
-      })
+//      text.bindBackground("state").setModelToView(new Transformer[Type, Color]() {
+//        def transform(element: Type) = element match {
+//          case NONE ⇒ Color.WHITE
+//          case PROGRAM ⇒ Color.LIGHT_GRAY
+//          case STORE ⇒ Color.BLUE
+//          case FECH_DECODE ⇒ Color.GREEN
+//          case EXECUTED ⇒ Color.CYAN
+//          case _ ⇒ null
+//        }
+//      })
     })
   }
 }

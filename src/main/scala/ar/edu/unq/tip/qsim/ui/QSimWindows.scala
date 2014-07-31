@@ -4,23 +4,45 @@ import java.awt.Color
 
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.Map
-import org.uqbar.arena.windows.MessageBox
+
 import org.apache.commons.lang.StringUtils
 import org.uqbar.arena.Application
 import org.uqbar.arena.actions.MessageSend
 import org.uqbar.arena.bindings.ObservableProperty
-import org.uqbar.arena.layout.{ ColumnLayout, HorizontalLayout, VerticalLayout }
-import org.uqbar.arena.widgets._
+import org.uqbar.arena.layout.ColumnLayout
+import org.uqbar.arena.layout.HorizontalLayout
+import org.uqbar.arena.layout.VerticalLayout
+import org.uqbar.arena.widgets.Button
+import org.uqbar.arena.widgets.GroupPanel
+import org.uqbar.arena.widgets.Label
+import org.uqbar.arena.widgets.Link
+import org.uqbar.arena.widgets.Panel
+import org.uqbar.arena.widgets.TextBox
+import org.uqbar.arena.widgets.TextFilter
+import org.uqbar.arena.widgets.TextInputEvent
 import org.uqbar.arena.widgets.tables.Column
 import org.uqbar.arena.widgets.tables.Table
-import org.uqbar.arena.windows.{ Dialog, Window, WindowOwner }
-import org.uqbar.commons.utils.{ Observable, ReflectionUtils, When }
-import com.uqbar.commons.collections.Transformer
+import org.uqbar.arena.windows.Dialog
+import org.uqbar.arena.windows.Window
+import org.uqbar.arena.windows.WindowOwner
 import org.uqbar.commons.model.UserException
-import org.uqbar.arena.widgets.style.Style
-import ar.edu.unq.tpi.qsim.model.State._
-import ar.edu.unq.tpi.qsim.model._
-import ar.edu.unq.tpi.qsim.utils._
+import org.uqbar.commons.utils.Observable
+import org.uqbar.commons.utils.ReflectionUtils
+import org.uqbar.commons.utils.When
+
+import com.uqbar.commons.collections.Transformer
+
+import ar.edu.unq.tpi.qsim.model.Celda
+import ar.edu.unq.tpi.qsim.model.Programa
+import ar.edu.unq.tpi.qsim.model.Simulador
+import ar.edu.unq.tpi.qsim.model.State.EXECUTED
+import ar.edu.unq.tpi.qsim.model.State.FECH_DECODE
+import ar.edu.unq.tpi.qsim.model.State.NONE
+import ar.edu.unq.tpi.qsim.model.State.PROGRAM
+import ar.edu.unq.tpi.qsim.model.State.STORE
+import ar.edu.unq.tpi.qsim.model.State.Type
+import ar.edu.unq.tpi.qsim.model.W16
+import ar.edu.unq.tpi.qsim.utils.Util
 
 @Observable
 class Fila16Celdas(aName: String) extends Fila4Celdas(aName) {
@@ -45,32 +67,103 @@ case class ModificarValorException(smth:String) extends UserException(smth)
 class SimuladorAppmodel(programa: Programa, pc:String="0000") {
   var never_enabled = false
   var enabled = false
-
+  var next = "0000"
+  var prev = "0000"
+  
   var sim = Simulador()
   sim.inicializarSim()
-  var celdas = new java.util.ArrayList[Fila16Celdas]()
+  var celdas:java.util.List[Fila16Celdas]=_
+  var desde = new W16("0000")
+  var hasta = new W16(Util.toHex4(16*25))
+  var nextVisible = true
+  var prevVisible = true
   
   crearFila16Celdas()
   sim.cargarProgramaYRegistros(programa, pc, Map[String, W16]())
+  
+  def paginaInicial(){
+    val diff = hasta - desde
+    desde = new W16("0000") 
+    hasta = desde + diff
+    prevVisible = false
+    nextVisible = true
+    crearFila16Celdas()
+  }
+  
+  def paginaFinal(){
+    val diff = hasta - desde
+    hasta = new W16("FFFF")
+    desde = hasta - diff
+    prevVisible = true
+    nextVisible = false
+    crearFila16Celdas()
+  }
+
+  def paginaSiguiente() {
+    var diff = hasta - desde
+    if (hasta + diff > new W16("FFFF")) {
+      diff = new W16("FFFF") - hasta
+      nextVisible = false
+    }
+    prevVisible = true
+    hasta += diff
+    desde += diff
+    crearFila16Celdas()
+  }
+
+  def paginaAnterior() {
+    var diff = hasta - desde
+	if(desde - diff < new W16("0000")){
+		diff = diff - desde
+		prevVisible = false
+	}
+    nextVisible = true
+    hasta -= diff
+	desde -= diff 
+    crearFila16Celdas()
+  }
 
   def crearFila16Celdas() {
-    var contador = 0
+    validarDesdeYHasta(desde, hasta)
+    val list = new java.util.ArrayList[Fila16Celdas]()
+    var contador = desde.value
     var memoria = sim.busIO.memoria
-    var name = new W16("0000")
+    var name = new W16(desde.hex)
+    prev = name.hex
     var row = 0
     var fila: Fila16Celdas = new Fila16Celdas(name.toString)
     do {
       if (row >= 16) {
         row = 0
-        celdas.append(fila)
+        list.append(fila)
         name = name.+(new W16("0010"))
         fila = new Fila16Celdas(name.toString)
       }
       fila(row, memoria.celda(contador))
       contador = contador + 1
       row = row + 1
-    } while (contador <  memoria.tamanioMemoria)
-      celdas.append(fila)
+    } while (contador <  hasta.value)
+     list.append(fila)
+     next = name.hex
+     celdas = list
+  }
+  
+  def validarDesdeYHasta(desde:W16, hasta:W16){
+	    if(desde > hasta){
+	       throw new UserException("Desde no puede ser mayor que hata")
+	    }
+	    
+	    if((hasta - desde).value > 100*16){
+	      throw new UserException(s"la direncia maxima entre desde y hasta es ${100*16}")
+	    }
+	    
+	    if(hasta > new W16("FFFF")){
+	      throw new UserException(s"Hasta no puede superar el maximo a FFF que es el maximo de celdas de la memoria")
+	    }
+	    
+	    if(desde < new W16("0000")){
+	      throw new UserException(s"Desde no puede ser menor a 0000")
+	    }
   }
 
   def cheakearInputs(){
@@ -127,10 +220,26 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
 
   def crearMemoria(parent: Panel) {
     var memoriaForm = new Panel(parent)
-    memoriaForm.setLayout(new ColumnLayout(1))
+    memoriaForm.setLayout(new VerticalLayout())
+    
+    var buttonPanel = new Panel(memoriaForm).setLayout(new HorizontalLayout())
+    new Label(buttonPanel).setText("Desde:")
+    new TextBox(buttonPanel).setWidth(50).bindValueToProperty("desde.hex")
+    new Label(buttonPanel).setText("Hasta:")
+    new TextBox(buttonPanel).setWidth(50).bindValueToProperty("hasta.hex")
+    new Button(buttonPanel).onClick(new MessageSend(model, "crearFila16Celdas")).setCaption("Actualizar")
+    new Link(buttonPanel).setCaption("Inicio").onClick(new MessageSend(model, "paginaInicial"))
+    val anterior = new Link(buttonPanel).onClick(new MessageSend(model, "paginaAnterior"))
+    anterior.bindCaptionToProperty("prev")
+    anterior.bindVisibleToProperty("prevVisible")
+    val siguiente = new Link(buttonPanel).onClick(new MessageSend(model, "paginaSiguiente"))
+    siguiente.bindCaptionToProperty("next")
+    siguiente.bindVisibleToProperty("nextVisible")
+    new Link(buttonPanel).onClick(new MessageSend(model, "paginaFinal")).setCaption(<a>Fin</a>.toString)
 
-    var table = new Table[Fila16Celdas](parent, classOf[Fila16Celdas])
-    table.setHeigth(500)
+
+    var table = new Table[Fila16Celdas](memoriaForm, classOf[Fila16Celdas])
+    table.setHeight(500)
     table.setWidth(850)
     table.bindItemsToProperty("celdas")
     new Column[Fila16Celdas](table) //
@@ -165,19 +274,19 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       val text_pc = new TextBox(FlagsForm)
       text_pc.bindEnabledToProperty("enabled")
       text_pc.bindValueToProperty(s"sim.cpu.pc.hex")
-      text_pc.setWidth(110).setHeigth(15)
+      text_pc.setWidth(110).setHeight(15)
       
       new Label(FlagsForm).setText("SP")
       val text_sp = new TextBox(FlagsForm)
       text_sp.bindEnabledToProperty("never_enabled")
       text_sp.bindValueToProperty(s"sim.cpu.sp.hex")
-      text_sp.setWidth(110).setHeigth(15)
+      text_sp.setWidth(110).setHeight(15)
       
       new Label(FlagsForm).setText("IR")
       val text = new TextBox(FlagsForm)
       text.bindEnabledToProperty("never_enabled")
       text.bindValueToProperty(s"sim.cpu.ir")
-      text.setWidth(110).setHeigth(15)
+      text.setWidth(110).setHeight(15)
     
   }
   
@@ -193,7 +302,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       val text = new TextBox(FlagsForm)
       text.bindEnabledToProperty("enabled")
       text.bindValueToProperty(s"sim.cpu.$prop")
-      text.setWidth(30).setHeigth(15)
+      text.setWidth(30).setHeight(15)
       text.withFilter(new TextFilter() {
         def accept(event: TextInputEvent): Boolean = {
           event.getPotentialTextResult().matches("[0-1]{1}")
@@ -210,7 +319,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
 	    	.setMultiLine(true)
 	    	.selectFinalLine()
 	    	.setWidth(360)
-	    	.setHeigth(220)
+	    	.setHeight(220)
 	    	.bindValueToProperty("sim.mensaje_al_usuario")
   }
 
@@ -244,7 +353,6 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       new Button(ciclo_Form)
         .setCaption(StringUtils.capitalize(action))
         .onClick(new MessageSend(model.sim, action))
-        .setAsDefault
         .bindEnabled(new ObservableProperty(model.sim.ciclo, action))
     })   
     
@@ -256,12 +364,10 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     val editable = new Button(buttons_Form)
       .setCaption("Editable")
       .onClick(new MessageSend(model, "cambiarEdicion"))
-      .setAsDefault
 
     val ver_puertos =new Button(buttons_Form)
       .setCaption("Ver puertos")
       .onClick(new MessageSend(QSimWindows.this, "createPuertosWindow"))
-      .setAsDefault
 
   }
 
@@ -275,7 +381,7 @@ object QSimRunner extends Application with App {
 
   def createMainWindow(): Window[_] = {
     var la = new QSimMain()
-//  la.setPathArchivo("src/main/resources/programaQ1.qsim")
+  la.setPathArchivo("src/main/resources/programaQ1.qsim")
 //   la.setPathArchivo("src/main/resources/programaQ2.qsim")
 //    la.setPathArchivo("src/main/resources/programaQ3.qsim")
     new QSimWindow(this, la)
