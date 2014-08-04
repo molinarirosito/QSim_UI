@@ -129,7 +129,7 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000") {
     var contador = desde.value
     var memoria = sim.busIO.memoria
     var name = new W16(desde.hex)
-    prev = name.hex
+    prev = <a> {name.hex}</a>.toString
     var row = 0
     var fila: Fila16Celdas = new Fila16Celdas(name.toString)
     do {
@@ -144,7 +144,7 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000") {
       row = row + 1
     } while (contador <  hasta.value)
      list.append(fila)
-     next = name.hex
+     next = <a>  {name.hex}  </a>.toString
      celdas = list
   }
   
@@ -165,7 +165,15 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000") {
 	      throw new UserException(s"Desde no puede ser menor a 0000")
 	    }
   }
-
+  
+  def vaciarRegistros(){
+	  var list_registros = sim.cpu.registros
+	  
+	  list_registros.foreach(registro => {
+		  registro.valor = new W16("0000")
+	  })
+  }
+  
   def cheakearInputs(){
     sim.cpu.registros.foreach(registro => {
      if(registro.valor.hex.size<4)
@@ -179,7 +187,7 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000") {
      {  throw new ModificarValorException(sim.cpu.pc.hex + " No es un argumento válido para pc.")}
        
   }
-  
+
 
   def cambiarEdicion() {    
     cheakearInputs()
@@ -228,7 +236,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     new Label(buttonPanel).setText("Hasta:")
     new TextBox(buttonPanel).setWidth(50).bindValueToProperty("hasta.hex")
     new Button(buttonPanel).onClick(new MessageSend(model, "crearFila16Celdas")).setCaption("Actualizar")
-    new Link(buttonPanel).setCaption("Inicio").onClick(new MessageSend(model, "paginaInicial"))
+    new Link(buttonPanel).setCaption(<a>Inicio</a>.toString).onClick(new MessageSend(model, "paginaInicial"))
     val anterior = new Link(buttonPanel).onClick(new MessageSend(model, "paginaAnterior"))
     anterior.bindCaptionToProperty("prev")
     anterior.bindVisibleToProperty("prevVisible")
@@ -264,7 +272,13 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     }
 
   }
-  
+
+   val w16Filter = new TextFilter() {
+      def accept(event: TextInputEvent): Boolean = {
+        event.getPotentialTextResult().matches("[A-F0-9]{0,4}")
+      }
+    }
+   
   def crearRegistrosEspeciales(parent: Panel) {
     var FlagsForm = new GroupPanel(parent)
     FlagsForm.setTitle("Registros especiales")
@@ -275,6 +289,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       text_pc.bindEnabledToProperty("enabled")
       text_pc.bindValueToProperty(s"sim.cpu.pc.hex")
       text_pc.setWidth(110).setHeight(15)
+      text_pc.withFilter(w16Filter)
       
       new Label(FlagsForm).setText("SP")
       val text_sp = new TextBox(FlagsForm)
@@ -349,20 +364,32 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     ciclo_Form.setTitle("Ciclo ejecucion")
     ciclo_Form.setLayout(new HorizontalLayout())
     
-    scala.List("fetch", "decode", "execute").foreach(action => {
-      new Button(ciclo_Form)
-        .setCaption(StringUtils.capitalize(action))
-        .onClick(new MessageSend(model.sim, action))
-        .bindEnabled(new ObservableProperty(model.sim.ciclo, action))
-    })   
     
+      new Button(ciclo_Form)
+        .setCaption(StringUtils.capitalize("Buscar"))
+        .onClick(new MessageSend(model.sim, "fetch"))
+        .setAsDefault
+        .bindEnabled(new ObservableProperty(model.sim.ciclo, "fetch"))
+        
+     new Button(ciclo_Form)
+        .setCaption(StringUtils.capitalize("Dedodificar"))
+        .onClick(new MessageSend(model.sim, "decode"))
+        .setAsDefault
+        .bindEnabled(new ObservableProperty(model.sim.ciclo, "decode"))
+        
+     new Button(ciclo_Form)
+        .setCaption(StringUtils.capitalize("Ejecutar"))
+        .onClick(new MessageSend(model.sim, "execute"))
+        .setAsDefault
+        .bindEnabled(new ObservableProperty(model.sim.ciclo, "execute"))
+       
     
     var buttons_Form = new GroupPanel(panelForm)
     buttons_Form.setTitle("")
     buttons_Form.setLayout(new HorizontalLayout())
 
     val editable = new Button(buttons_Form)
-      .setCaption("Editable")
+      .setCaption("Editar")
       .onClick(new MessageSend(model, "cambiarEdicion"))
 
     val ver_puertos =new Button(buttons_Form)

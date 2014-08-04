@@ -43,7 +43,7 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
     // de esta forma se tiene que poner cuando generamos el .jar
     this.setIconImage("icon.png")
     // de esta otra forma es para desarrollo
-    // this.setIconImage(getClass().getResource("/icon.png").getPath())
+//    this.setIconImage(getClass().getResource("/icon.png").getPath())
 
     var form = new Panel(mainPanel)
     form.setLayout(new HorizontalLayout())
@@ -107,8 +107,8 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
     val codeEditor = new KeyWordTextArea(panelForm)
     codeEditor.setWidth(300).setHeight(300).bindValueToProperty("actual.codigo")
     codeEditor.keyWords("[a-z_]*")
-      .foreground(Color.MAGENTA).fontStyle(Style.ITALIC)
-    codeEditor.keyWords("ADD", "MOV", "SUB", "CALL", "JAMP", "RET", "MUL", "RET")
+      .foreground(Color.RED).fontStyle(Style.ITALIC)
+    codeEditor.keyWords("MOV", "MUL", "SUB", "DIV", "ADD", "CALL", "RET", "CMP", "JMP", "JE", "JNE", "JLE", "JG", "JL", "JGE", "JLEU", "JGU", "JCS", "JNEG", "JVS")
       .foreground(Color.BLUE).fontStyle(Style.BOLD)
     codeEditor.keyWords("""//[\w]+[\d]*\n?""")
       .foreground(Color.GREEN)
