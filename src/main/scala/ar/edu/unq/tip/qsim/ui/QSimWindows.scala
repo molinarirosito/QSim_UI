@@ -150,19 +150,19 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000") {
   
   def validarDesdeYHasta(desde:W16, hasta:W16){
 	    if(desde > hasta){
-	       throw new UserException("Desde no puede ser mayor que hata")
+	       throw new UserException("Desde no puede ser mayor que hasta.")
 	    }
 	    
 	    if((hasta - desde).value > 100*16){
-	      throw new UserException(s"la direncia maxima entre desde y hasta es ${100*16}")
+	      throw new UserException(s"La diferencia maxima entre desde y hasta es ${100*16}.")
 	    }
 	    
 	    if(hasta > new W16("FFFF")){
-	      throw new UserException(s"Hasta no puede superar el maximo a FFF que es el maximo de celdas de la memoria")
+	      throw new UserException(s"Hasta no puede superar el maximo a FFFF que es el maximo de celdas de la memoria.")
 	    }
 	    
 	    if(desde < new W16("0000")){
-	      throw new UserException(s"Desde no puede ser menor a 0000")
+	      throw new UserException(s"Desde no puede ser menor a 0000.")
 	    }
   }
   
@@ -192,7 +192,6 @@ class SimuladorAppmodel(programa: Programa, pc:String="0000") {
   def cambiarEdicion() {    
     cheakearInputs()
     enabled = !enabled
-
     if(enabled)
     {sim.ciclo.ninguna_etapa}
     else
@@ -230,20 +229,23 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     var memoriaForm = new Panel(parent)
     memoriaForm.setLayout(new VerticalLayout())
     
-    var buttonPanel = new Panel(memoriaForm).setLayout(new HorizontalLayout())
-    new Label(buttonPanel).setText("Desde:")
-    new TextBox(buttonPanel).setWidth(50).bindValueToProperty("desde.hex")
-    new Label(buttonPanel).setText("Hasta:")
-    new TextBox(buttonPanel).setWidth(50).bindValueToProperty("hasta.hex")
-    new Button(buttonPanel).onClick(new MessageSend(model, "crearFila16Celdas")).setCaption("Actualizar")
-    new Link(buttonPanel).setCaption(<a>Inicio</a>.toString).onClick(new MessageSend(model, "paginaInicial"))
-    val anterior = new Link(buttonPanel).onClick(new MessageSend(model, "paginaAnterior"))
+    var buttonPanel = new Panel(memoriaForm).setLayout(new ColumnLayout(3))
+    var buttonDH = new Panel(buttonPanel).setLayout(new ColumnLayout(4))
+    new Label(buttonDH).setText("Desde:")
+    new TextBox(buttonDH).withFilter(w16Filter).bindValueToProperty("desde.hex")
+    new Label(buttonDH).setText("Hasta:")
+    new TextBox(buttonDH).withFilter(w16Filter).bindValueToProperty("hasta.hex")
+    var buttonAct = new Panel(buttonPanel).setLayout(new ColumnLayout(1))
+    new Button(buttonAct).onClick(new MessageSend(model, "crearFila16Celdas")).setCaption("Actualizar")
+    var linkPaginacion = new Panel(buttonPanel).setLayout(new ColumnLayout(4))
+    new Link(linkPaginacion).setCaption(<a>Inicio</a>.toString).onClick(new MessageSend(model, "paginaInicial"))
+    val anterior = new Link(linkPaginacion).onClick(new MessageSend(model, "paginaAnterior"))
     anterior.bindCaptionToProperty("prev")
     anterior.bindVisibleToProperty("prevVisible")
-    val siguiente = new Link(buttonPanel).onClick(new MessageSend(model, "paginaSiguiente"))
+    val siguiente = new Link(linkPaginacion).onClick(new MessageSend(model, "paginaSiguiente"))
     siguiente.bindCaptionToProperty("next")
     siguiente.bindVisibleToProperty("nextVisible")
-    new Link(buttonPanel).onClick(new MessageSend(model, "paginaFinal")).setCaption(<a>Fin</a>.toString)
+    new Link(linkPaginacion).onClick(new MessageSend(model, "paginaFinal")).setCaption(<a>Fin</a>.toString)
 
 
     var table = new Table[Fila16Celdas](memoriaForm, classOf[Fila16Celdas])
@@ -285,37 +287,49 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     FlagsForm.setLayout(new ColumnLayout(2))
     
     new Label(FlagsForm).setText("PC")
-      val text_pc = new TextBox(FlagsForm)
-      text_pc.bindEnabledToProperty("enabled")
+      val text_pc = editableText(FlagsForm)
+//      text_pc.bindEnabledToProperty("enabled")
       text_pc.bindValueToProperty(s"sim.cpu.pc.hex")
       text_pc.setWidth(110).setHeight(15)
       text_pc.withFilter(w16Filter)
       
       new Label(FlagsForm).setText("SP")
-      val text_sp = new TextBox(FlagsForm)
-      text_sp.bindEnabledToProperty("never_enabled")
+      val text_sp = disableText(FlagsForm)
+//      text_sp.bindEnabledToProperty("never_enabled")
       text_sp.bindValueToProperty(s"sim.cpu.sp.hex")
       text_sp.setWidth(110).setHeight(15)
       
       new Label(FlagsForm).setText("IR")
-      val text = new TextBox(FlagsForm)
-      text.bindEnabledToProperty("never_enabled")
+      val text = disableText(FlagsForm)
+      //text.bindEnabledToProperty("never_enabled")
       text.bindValueToProperty(s"sim.cpu.ir")
       text.setWidth(110).setHeight(15)
-    
+  }
+  
+  
+  def editableText(parent: Panel)= {
+    val text = new TextBox(parent)
+    text.bindEnabled(new ObservableProperty(this.getModelObject(), "enabled"))
+    text.setBackground(Color.RED)
+    text
+  }
+  
+  
+  def disableText(parent: Panel)= {
+    val text = new TextBox(parent)
+    text.bindEnabled(new ObservableProperty(this.getModelObject(), "never_enabled"))
+    text.setBackground(Color.RED)
+    text
   }
   
   def crearFlags(parent: Panel) {
     var FlagsForm = new GroupPanel(parent)
     FlagsForm.setTitle("Flags")
     FlagsForm.setLayout(new ColumnLayout(4))
-   
-      
-      
+  
       scala.List[String]("n", "v", "z", "c").foreach(prop => {
       new Label(FlagsForm).setText(prop.toUpperCase)
-      val text = new TextBox(FlagsForm)
-      text.bindEnabledToProperty("enabled")
+      val text = editableText(FlagsForm)
       text.bindValueToProperty(s"sim.cpu.$prop")
       text.setWidth(30).setHeight(15)
       text.withFilter(new TextFilter() {
@@ -345,13 +359,13 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     model.sim.cpu.registros.foreach(registro => {
       val registroPanel = new Panel(registrosForm, registro).setLayout(new ColumnLayout(2))
       new Label(registroPanel).setText("R" + registro.numero)
-      val text = new TextBox(registroPanel)
+      val text = editableText(registroPanel)
       text.withFilter(new TextFilter() {
         def accept(event: TextInputEvent): Boolean = {
           event.getPotentialTextResult().matches("[A-F0-9]{0,4}")
         }
       })
-      text.bindEnabled(new ObservableProperty(this.getModelObject(), "enabled"))
+//      text.bindEnabled(new ObservableProperty(this.getModelObject(), "enabled"))
       text.bindValueToProperty("valor.hex")
     })
   }
@@ -408,7 +422,7 @@ object QSimRunner extends Application with App {
 
   def createMainWindow(): Window[_] = {
     var la = new QSimMain()
-  la.setPathArchivo("src/main/resources/programaQ1.qsim")
+//  la.setPathArchivo("src/main/resources/programaQ1.qsim")
 //   la.setPathArchivo("src/main/resources/programaQ2.qsim")
 //    la.setPathArchivo("src/main/resources/programaQ3.qsim")
     new QSimWindow(this, la)
