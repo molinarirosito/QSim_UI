@@ -238,14 +238,14 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     var buttonAct = new Panel(buttonPanel).setLayout(new ColumnLayout(1))
     new Button(buttonAct).onClick(new MessageSend(model, "crearFila16Celdas")).setCaption("Actualizar")
     var linkPaginacion = new Panel(buttonPanel).setLayout(new ColumnLayout(4))
-    new Link(linkPaginacion).setCaption(<a>Inicio</a>.toString).onClick(new MessageSend(model, "paginaInicial"))
+    new Link(linkPaginacion).setCaption("Inicio").onClick(new MessageSend(model, "paginaInicial"))
     val anterior = new Link(linkPaginacion).onClick(new MessageSend(model, "paginaAnterior"))
     anterior.bindCaptionToProperty("prev")
     anterior.bindVisibleToProperty("prevVisible")
     val siguiente = new Link(linkPaginacion).onClick(new MessageSend(model, "paginaSiguiente"))
     siguiente.bindCaptionToProperty("next")
     siguiente.bindVisibleToProperty("nextVisible")
-    new Link(linkPaginacion).onClick(new MessageSend(model, "paginaFinal")).setCaption(<a>Fin</a>.toString)
+    new Link(linkPaginacion).onClick(new MessageSend(model, "paginaFinal")).setCaption("Fin")
 
 
     var table = new Table[Fila16Celdas](memoriaForm, classOf[Fila16Celdas])
@@ -310,7 +310,6 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
   def editableText(parent: Panel)= {
     val text = new TextBox(parent)
     text.bindEnabled(new ObservableProperty(this.getModelObject(), "enabled"))
-    text.setBackground(Color.RED)
     text
   }
   
@@ -318,7 +317,6 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
   def disableText(parent: Panel)= {
     val text = new TextBox(parent)
     text.bindEnabled(new ObservableProperty(this.getModelObject(), "never_enabled"))
-    text.setBackground(Color.RED)
     text
   }
   

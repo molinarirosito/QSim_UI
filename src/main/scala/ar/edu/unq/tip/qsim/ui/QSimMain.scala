@@ -2,9 +2,8 @@ package ar.edu.unq.tip.qsim.ui
 
 import java.awt.Color
 
-import scala.collection.JavaConversions.asScalaBuffer
-import scala.collection.JavaConversions.bufferAsJavaList
-import scala.collection.JavaConversions.seqAsJavaList
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import org.uqbar.arena.actions.MessageSend
 import org.uqbar.arena.bindings.NotNullObservable
@@ -123,8 +122,8 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
 @Observable
 class QSimMain {
 
-  var archivos: java.util.List[Archivo] = scala.collection.immutable.List[Archivo]()
-  var actual: Archivo = _
+  var archivos: java.util.List[Archivo] = scala.collection.immutable.List[Archivo](new Archivo("main", ""))
+  var actual: Archivo = archivos.get(0)
   var arquitecturaActual: ArquitecturaQ = Parser.arquitecturas(0)
   var programa: Programa = _
   var enabled = false
