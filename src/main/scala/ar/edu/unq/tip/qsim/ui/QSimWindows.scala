@@ -240,7 +240,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       .bindEnabled(new ObservableProperty(model.sim.ciclo, "fetch"))
 
     new Button(ciclo_pap_Form)
-      .setCaption(StringUtils.capitalize("Dedodificar"))
+      .setCaption(StringUtils.capitalize("Decodificar"))
       .onClick(new MessageSend(model.sim, "decode"))
       .setAsDefault
       .bindEnabled(new ObservableProperty(model.sim.ciclo, "decode"))
