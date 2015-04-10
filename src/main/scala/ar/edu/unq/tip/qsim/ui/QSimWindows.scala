@@ -48,7 +48,6 @@ import org.uqbar.commons.model.UserException
 import org.uqbar.commons.utils.Observable
 import org.uqbar.commons.utils.ReflectionUtils
 import org.uqbar.commons.utils.When
-import com.uqbar.commons.collections.Transformer
 import ar.edu.unq.tpi.qsim.model.Celda
 import ar.edu.unq.tpi.qsim.model.Programa
 import ar.edu.unq.tpi.qsim.model.Simulador
@@ -61,6 +60,7 @@ import ar.edu.unq.tpi.qsim.model.State.Type
 import ar.edu.unq.tpi.qsim.model.W16
 import ar.edu.unq.tpi.qsim.utils.Util
 import javax.swing.GroupLayout
+import org.apache.commons.collections15.Transformer
 
 @Observable
 class Fila16Celdas(aName: String) extends Fila4Celdas(aName) {
@@ -293,7 +293,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
 
     var buttonPanel = new Panel(memoriaForm).setLayout(new ColumnLayout(3))
     var buttonDH = new Panel(buttonPanel).setLayout(new ColumnLayout(4))
-    new Label(buttonDH).setText("Desde:")
+    new Label(buttonDH).setText("Desde:").setHeight(40).setWidth(50)
     new TextBox(buttonDH).withFilter(w16Filter).bindValueToProperty("desde.hex")
     new Label(buttonDH).setText("Hasta:")
     new TextBox(buttonDH).withFilter(w16Filter).bindValueToProperty("hasta.hex")
@@ -309,9 +309,9 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     siguiente.bindVisibleToProperty("nextVisible")
     new Link(linkPaginacion).onClick(new MessageSend(model, "paginaFinal")).setCaption("Fin")
 
+    
     var table = new Table[Fila16Celdas](memoriaForm, classOf[Fila16Celdas])
-    table.setHeight(500)
-    table.setWidth(850)
+    table.setNumberVisibleRows(24)
     table.bindItemsToProperty("celdas")
     new Column[Fila16Celdas](table) //
       .setTitle("")
@@ -322,7 +322,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       column.setTitle(Util.IntSumToHex(celdas))
         .setFixedSize(50)
         .bindContentsToProperty(s"celda$celdas")
-      column.bindBackground(s"celda$celdas.state", new Transformer[Type, Color]() {
+      column.bindBackground(s"celda$celdas.state").setTransformer(new Transformer[Type, Color]() {
         def transform(element: Type) = element match {
           case NONE ⇒ Color.WHITE
           case PROGRAM ⇒ Color.LIGHT_GRAY

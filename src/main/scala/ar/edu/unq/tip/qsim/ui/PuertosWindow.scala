@@ -20,10 +20,8 @@ package ar.edu.unq.tip.qsim.ui
 */
 
 import java.awt.Color
-
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.Map
-
 import org.apache.commons.lang.StringUtils
 import org.uqbar.arena.Application
 import org.uqbar.arena.actions.MessageSend
@@ -34,10 +32,10 @@ import org.uqbar.arena.widgets.tables.Column
 import org.uqbar.arena.widgets.tables.Table
 import org.uqbar.arena.windows.{ Dialog, Window, WindowOwner }
 import org.uqbar.commons.utils.{ Observable, ReflectionUtils, When }
-import com.uqbar.commons.collections.Transformer
 import ar.edu.unq.tpi.qsim.model.State._
 import ar.edu.unq.tpi.qsim.model._
 import ar.edu.unq.tpi.qsim.utils._
+import com.uqbar.poo.aop.InitializerBehavior
 
 class PuertosWindow(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[SimuladorAppmodel](owner, model) {
 
@@ -75,7 +73,7 @@ class PuertosWindow(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog
         def accept(event: TextInputEvent): Boolean = {
           event.getPotentialTextResult().matches("[A-F0-9]{0,4}")
         }
-      })
+      })   
 //      text.bindBackground("state").setModelToView(new Transformer[Type, Color]() {
 //        def transform(element: Type) = element match {
 //          case NONE ⇒ Color.WHITE
