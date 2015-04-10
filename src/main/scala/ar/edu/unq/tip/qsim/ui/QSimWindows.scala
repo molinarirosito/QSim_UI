@@ -61,6 +61,7 @@ import ar.edu.unq.tpi.qsim.model.W16
 import ar.edu.unq.tpi.qsim.utils.Util
 import javax.swing.GroupLayout
 import org.apache.commons.collections15.Transformer
+import ar.edu.unq.tpi.qsim.model.Memoria
 
 @Observable
 class Fila16Celdas(aName: String) extends Fila4Celdas(aName) {
@@ -92,7 +93,7 @@ class SimuladorAppmodel(programa: Programa, pc: String = "0000") {
   sim.inicializarSim()
   var celdas: java.util.List[Fila16Celdas] = _
   var desde = new W16("0000")
-  var hasta = new W16(Util.toHex4(16 * 25))
+  var hasta = new W16(Util.toHex4((16 * 32)))
   var nextVisible = true
   var prevVisible = true
 
@@ -110,7 +111,7 @@ class SimuladorAppmodel(programa: Programa, pc: String = "0000") {
 
   def paginaFinal() {
     val diff = hasta - desde
-    hasta = new W16("FFFF")
+    hasta = new W16("FFF0")
     desde = hasta - diff
     prevVisible = true
     nextVisible = false
@@ -119,8 +120,8 @@ class SimuladorAppmodel(programa: Programa, pc: String = "0000") {
 
   def paginaSiguiente() {
     var diff = hasta - desde
-    if (hasta + diff > new W16("FFFF")) {
-      diff = new W16("FFFF") - hasta
+    if (hasta + diff > new W16("FFE0")) {
+      diff = new W16("FFF0") - hasta
       nextVisible = false
     }
     prevVisible = true
@@ -150,6 +151,7 @@ class SimuladorAppmodel(programa: Programa, pc: String = "0000") {
     prev = <a> { name.hex }</a>.toString
     var row = 0
     var fila: Fila16Celdas = new Fila16Celdas(name.toString)
+    
     do {
       if (row >= 16) {
         row = 0
@@ -162,21 +164,23 @@ class SimuladorAppmodel(programa: Programa, pc: String = "0000") {
       row = row + 1
     } while (contador < hasta.value)
     list.append(fila)
+    name = name
     next = <a>  { name.hex }  </a>.toString
     celdas = list
   }
-
+  
+  
   def validarDesdeYHasta(desde: W16, hasta: W16) {
     if (desde > hasta) {
       throw new UserException("Desde no puede ser mayor que hasta.")
     }
 
-    if ((hasta - desde).value > 100 * 16) {
-      throw new UserException(s"La diferencia maxima entre desde y hasta es ${100 * 16}.")
+    if ((hasta - desde).value > 200 * 16) {
+      throw new UserException(s"La diferencia maxima entre desde y hasta es ${200 * 16}.")
     }
 
-    if (hasta > new W16("FFFF")) {
-      throw new UserException(s"Hasta no puede superar el maximo a FFFF que es el maximo de celdas de la memoria.")
+    if (hasta > new W16("FFF0")) {
+      throw new UserException(s"Hasta no puede superar el maximo a FFF0 que es el maximo de celdas de la memoria.")
     }
 
     if (desde < new W16("0000")) {
@@ -236,7 +240,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     crearTexArea(second_form)
     crearBotonesAccion(second_form)
 
-     //    val ver_puertos = new Button(buttons_Form)
+    //     val ver_puertos = new Button(second_form)
     //      .setCaption("Ver puertos")
     //      .onClick(new MessageSend(QSimWindows.this, "createPuertosWindow"))
   }
@@ -257,7 +261,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
       .bindEnabled(new ObservableProperty(model.sim.ciclo, "fetch"))
 
     new Button(ciclo_pap_Form)
-      .setCaption(StringUtils.capitalize("Dedodificar"))
+      .setCaption(StringUtils.capitalize("Decodificar"))
       .onClick(new MessageSend(model.sim, "decode"))
       .setAsDefault
       .bindEnabled(new ObservableProperty(model.sim.ciclo, "decode"))
