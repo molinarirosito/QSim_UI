@@ -297,7 +297,7 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
 
     var buttonPanel = new Panel(memoriaForm).setLayout(new ColumnLayout(3))
     var buttonDH = new Panel(buttonPanel).setLayout(new ColumnLayout(4))
-    new Label(buttonDH).setText("Desde:").setHeight(40).setWidth(50)
+    new Label(buttonDH).setText("Desde:")
     new TextBox(buttonDH).withFilter(w16Filter).bindValueToProperty("desde.hex")
     new Label(buttonDH).setText("Hasta:")
     new TextBox(buttonDH).withFilter(w16Filter).bindValueToProperty("hasta.hex")
