@@ -1,23 +1,23 @@
 package ar.edu.unq.tip.qsim.ui
 
 /**
-* Copyright 2014 Tatiana Molinari.
-* Copyright 2014 Susana Rosito
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * Copyright 2014 Tatiana Molinari.
+ * Copyright 2014 Susana Rosito
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 import java.awt.Color
 
@@ -58,10 +58,10 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
 
   override def createFormPanel(mainPanel: Panel) = {
     this.setTitle("QSim")
-    // de esta forma se tiene que poner cuando generamos el .jar
+    // De esta forma se tiene que poner cuando generamos el .jar
     this.setIconImage("icon.png")
-    // de esta otra forma es para desarrollo
-//    this.setIconImage(getClass().getResource("/icon.png").getPath())
+    // De esta otra forma es para desarrollo
+    // this.setIconImage(getClass().getResource("/icon.png").getPath())
 
     var form = new Panel(mainPanel)
     form.setLayout(new HorizontalLayout())
@@ -141,13 +141,12 @@ class QSimWindow(owner: WindowOwner, model: QSimMain) extends Dialog[QSimMain](o
 @Observable
 class QSimMain {
 
-  var archivos: java.util.List[Archivo] = scala.collection.immutable.List[Archivo](new Archivo("main", ""))
-  var actual: Archivo = archivos.get(0)
-  var arquitecturaActual: ArquitecturaQ = Parser.arquitecturas(0)
+  var archivos: java.util.List[Archivo] = scala.collection.immutable.List[Archivo]()
+  var actual: Archivo = _
+  var arquitecturaActual: ArquitecturaQ = Parser.arquitecturas(5)
   var programa: Programa = _
   var enabled = false
   var pc = "0000"
-  //var tamañoDeMemoria = "0300"
 
   def cambiarEnabled() {
     enabled = !enabled
@@ -157,6 +156,7 @@ class QSimMain {
     if (path != null) {
       var nombre = takeName(path)
       var codigo = readFile(path)
+      println(codigo)
       var archivo = new Archivo(nombre, codigo)
       archivos = archivos.+:(archivo)
       println(archivos)
@@ -175,7 +175,9 @@ class QSimMain {
   }
   def ensamblar() {
     programa = null
+    println("QUE ARQUITECTURA USAMOS \n" + arquitecturaActual)
     programa = arquitecturaActual.parser(archivos.map(_.codigo).mkString)
+    println("RESULTADO DEL ENSAMBLADO \n" + programa)
   }
 
   def takeName(path: String) = {
@@ -190,6 +192,8 @@ class Archivo(var nombre: String, var codigo: String) {
 }
 
 object laaa extends App {
-  var la = new QSimMain()
-  la.setPathArchivo("src/main/resources/programaQ1.qsim")
+  //  var program = args(0)
+  //  var la = new QSimMain()
+  //  la.setPathArchivo("src/main/resources/" + program)
+  //  la.ensamblar()
 }

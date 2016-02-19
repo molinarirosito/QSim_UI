@@ -1,25 +1,23 @@
 package ar.edu.unq.tip.qsim.ui
 
-
 /**
-* Copyright 2014 Tatiana Molinari.
-* Copyright 2014 Susana Rosito
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://www.gnu.org/licenses/>.
-*
-*/
-
+ * Copyright 2014 Tatiana Molinari.
+ * Copyright 2014 Susana Rosito
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 import java.awt.Color
 import scala.collection.JavaConversions.asScalaBuffer
@@ -62,6 +60,7 @@ import ar.edu.unq.tpi.qsim.utils.Util
 import javax.swing.GroupLayout
 import org.apache.commons.collections15.Transformer
 import ar.edu.unq.tpi.qsim.model.Memoria
+import ar.edu.unq.tpi.qsim.exeptions.SyntaxErrorException
 
 @Observable
 class Fila16Celdas(aName: String) extends Fila4Celdas(aName) {
@@ -98,6 +97,7 @@ class SimuladorAppmodel(programa: Programa, pc: String = "0000") {
   var prevVisible = true
 
   crearFila16Celdas()
+  Console.println("QUE ES PROGRAMA \n" + programa)
   sim.cargarProgramaYRegistros(programa, pc, Map[String, W16]())
 
   def paginaInicial() {
@@ -151,7 +151,7 @@ class SimuladorAppmodel(programa: Programa, pc: String = "0000") {
     prev = <a> { name.hex }</a>.toString
     var row = 0
     var fila: Fila16Celdas = new Fila16Celdas(name.toString)
-    
+
     do {
       if (row >= 16) {
         row = 0
@@ -168,8 +168,7 @@ class SimuladorAppmodel(programa: Programa, pc: String = "0000") {
     next = <a>  { name.hex }  </a>.toString
     celdas = list
   }
-  
-  
+
   def validarDesdeYHasta(desde: W16, hasta: W16) {
     if (desde > hasta) {
       throw new UserException("Desde no puede ser mayor que hasta.")
@@ -313,7 +312,6 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
     siguiente.bindVisibleToProperty("nextVisible")
     new Link(linkPaginacion).onClick(new MessageSend(model, "paginaFinal")).setCaption("Fin")
 
-    
     var table = new Table[Fila16Celdas](memoriaForm, classOf[Fila16Celdas])
     table.setNumberVisibleRows(24)
     table.bindItemsToProperty("celdas")
@@ -328,12 +326,12 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
         .bindContentsToProperty(s"celda$celdas")
       column.bindBackground(s"celda$celdas.state").setTransformer(new Transformer[Type, Color]() {
         def transform(element: Type) = element match {
-          case NONE ⇒ Color.WHITE
-          case PROGRAM ⇒ Color.LIGHT_GRAY
-          case STORE ⇒ Color.BLUE
+          case NONE        ⇒ Color.WHITE
+          case PROGRAM     ⇒ Color.LIGHT_GRAY
+          case STORE       ⇒ Color.BLUE
           case FECH_DECODE ⇒ Color.GREEN
-          case EXECUTED ⇒ Color.CYAN
-          case _ ⇒ null
+          case EXECUTED    ⇒ Color.CYAN
+          case _           ⇒ null
         }
       })
     }
@@ -441,14 +439,22 @@ class QSimWindows(owner: WindowOwner, model: SimuladorAppmodel) extends Dialog[S
 
 }
 
-object QSimRunner extends Application with App {
+object QSimRunner extends App {
 
-  def createMainWindow(): Window[_] = {
+  def start() {
+    var program = args(0)
     var la = new QSimMain()
-    //  la.setPathArchivo("src/main/resources/programaQ1.qsim")
-    //   la.setPathArchivo("src/main/resources/programaQ2.qsim")
-    //    la.setPathArchivo("src/main/resources/programaQ3.qsim")
-    new QSimWindow(this, la)
+    var sim = Simulador()
+    try {
+      la.setPathArchivo("src/main/resources/" + program)
+      la.ensamblar()
+      sim.inicializarSim()
+      sim.cargarProgramaYRegistros(la.programa, "0000", Map[String, W16]())
+      sim.execute_all_program();
+    } catch {
+      case ex: SyntaxErrorException => {
+      }
+    }
   }
   start()
 }
